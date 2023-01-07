@@ -144,7 +144,7 @@ while True:
     sleep(60)
     amount_of_btc_to_move_from_kraken = get_kraken_btc_balance()
     withdraw_btc_from_kraken(amount_of_btc_to_move_from_kraken)
-    while request('/balances')['BTC'] < amount_of_btc_to_move_from_kraken * Decimal('0.95');
+    while request('/balances')['BTC'] < amount_of_btc_to_move_from_kraken * Decimal('0.95'):
       sleep(60)
     print("And the funds have arrived locally")
   elif sell_amount < THRESHOLD:
