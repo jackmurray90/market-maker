@@ -16,6 +16,7 @@ api_key = open('.apikey', 'r').read()
 def request(url, params={}):
   params['api_key'] = api_key
   response = requests.get(HOST + url, params)
+  sleep(0.5)
   return response.json()
 
 def round_to_18_decimal_places(amount):
@@ -40,7 +41,6 @@ while True:
   orders = request('/orders')
   for order in orders:
     request('/cancel', {'order_id': order['id']})
-    sleep(0.5)
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.98'))
   sell_price = round_to_18_decimal_places(mid_market_rate * Decimal('1.02'))
   request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places(buy_price * Decimal(balances['BTC'])), 'price': '%0.18f'%buy_price})
