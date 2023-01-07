@@ -43,6 +43,6 @@ while True:
     request('/cancel', {'order_id': order['id']})
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.98'))
   sell_price = round_to_18_decimal_places(mid_market_rate * Decimal('1.02'))
-  request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places(buy_price * Decimal(balances['BTC'])), 'price': '%0.18f'%buy_price})
+  request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price), 'price': '%0.18f'%buy_price})
   request('/sell', {'amount': '%0.18f'%Decimal(balances['XMR']), 'price': '%0.18f'%sell_price})
   sleep(60)
