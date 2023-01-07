@@ -50,4 +50,4 @@ while True:
   sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
   request('/buy', {'amount': str(round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)), 'price': str(buy_price)})
   request('/sell', {'amount': str(Decimal(balances['XMR'])), 'price': str(sell_price)})
-  sleep(60*5)
+  sleep(60*20)
