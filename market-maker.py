@@ -33,7 +33,8 @@ def get_mid_market_rate():
 
 while True:
   balances = request('/balances')
-  if Decimal(balances['BTC']) == 0 and Decimal(balances['XMR']) == 0:
+  orders = request('/orders')
+  if Decimal(balances['BTC']) == 0 and Decimal(balances['XMR']) == 0 and len(orders) == 0:
     print("Both balances are zero, deposit some XMR and BTC to the following addresses and then press enter:")
     print(request('/deposit', {'currency': 'BTC'})['address'])
     print(request('/deposit', {'currency': 'XMR'})['address'])
@@ -45,8 +46,8 @@ while True:
   for order in orders:
     request('/cancel', {'order_id': order['id']})
   balances = request('/balances')
-  buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.98'))
-  sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.02'))
-  request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places((Decimal(balances['BTC'])-Decimal('1e-18')) * (buy_price-Decimal('1e-18'))), 'price': '%0.18f'%buy_price})
-  request('/sell', {'amount': '%0.18f'%Decimal(balances['XMR']), 'price': '%0.18f'%sell_price})
-  sleep(60)
+  buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
+  sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
+  request('/buy', {'amount': str(round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)), 'price': str(buy_price)})
+  request('/sell', {'amount': str(Decimal(balances['XMR'])), 'price': str(sell_price)})
+  sleep(60*5)
