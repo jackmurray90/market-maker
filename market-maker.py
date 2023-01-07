@@ -44,9 +44,7 @@ while True:
   print("Kraken mid market rate is", mid_market_rate, "updating orders")
   orders = request('/orders')
   for order in orders:
-    if abs(Decimal(order['price']) - mid_market_rate) > mid_market_rate / Decimal('0.99'):
-      print("Cancelling existing order", order['id'])
-      request('/cancel', {'order_id': order['id']})
+    request('/cancel', {'order_id': order['id']})
   balances = request('/balances')
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
   sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
@@ -56,4 +54,4 @@ while True:
     request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
   if sell_amount > 0:
     request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
-  sleep(60)
+  sleep(60*5)
