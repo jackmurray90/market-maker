@@ -2,7 +2,7 @@ import requests
 from decimal import Decimal
 from os.path import isfile
 from time import sleep
-from math import floor
+from math import floor, ceil
 
 HOST = 'https://fryx.finance'
 
@@ -21,6 +21,9 @@ def request(url, params={}):
 
 def round_to_18_decimal_places(amount):
   return floor(amount * 10**18) / Decimal(10**18)
+
+def round_up_to_18_decimal_places(amount):
+  return ceil(amount * 10**18) / Decimal(10**18)
 
 def get_mid_market_rate():
   response = requests.get('https://api.kraken.com/0/public/Depth?pair=XMRBTC').json()
@@ -41,8 +44,9 @@ while True:
   orders = request('/orders')
   for order in orders:
     request('/cancel', {'order_id': order['id']})
+  balances = request('/balances')
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.98'))
-  sell_price = round_to_18_decimal_places(mid_market_rate * Decimal('1.02'))
-  request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price), 'price': '%0.18f'%buy_price})
+  sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.02'))
+  request('/buy', {'amount': '%0.18f'%round_to_18_decimal_places((Decimal(balances['BTC'])-Decimal('1e-18')) * (buy_price-Decimal('1e-18'))), 'price': '%0.18f'%buy_price})
   request('/sell', {'amount': '%0.18f'%Decimal(balances['XMR']), 'price': '%0.18f'%sell_price})
   sleep(60)
