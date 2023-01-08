@@ -190,4 +190,4 @@ while True:
       sleep(60)
     print("and the funds have arrived locally")
   else:
-    sleep(60*5)
+    sleep(60*20)
