@@ -113,11 +113,6 @@ print(request('/deposit', {'asset': 'BTC'})['address'])
 print(request('/deposit', {'asset': 'XMR'})['address'])
 input()
 
-amount_to_move_from_kraken = Decimal(6.3836823000)
-while Decimal(request('/balances')['XMR']) < amount_to_move_from_kraken * Decimal('0.95'):
-  sleep(60)
-print("and the funds have arrived locally")
-
 while True:
   balances = request('/balances')
   mid_market_rate = get_mid_market_rate()
