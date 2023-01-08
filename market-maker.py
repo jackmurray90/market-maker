@@ -109,16 +109,20 @@ def withdraw_btc_from_kraken(amount):
   }))
 
 print("Deposit some XMR and BTC to the following addresses and then press enter:")
-print(request('/deposit', {'currency': 'BTC'})['address'])
-print(request('/deposit', {'currency': 'XMR'})['address'])
+print(request('/deposit', {'asset': 'BTC'})['address'])
+print(request('/deposit', {'asset': 'XMR'})['address'])
 input()
+
+amount_to_move_from_kraken = Decimal(6.3836823000)
+while Decimal(request('/balances')['XMR']) < amount_to_move_from_kraken * Decimal('0.95'):
+  sleep(60)
+print("and the funds have arrived locally")
 
 while True:
   balances = request('/balances')
-  orders = request('/orders')
   mid_market_rate = get_mid_market_rate()
   print("Kraken mid market rate is", mid_market_rate, "updating orders")
-  orders = request('/orders')
+  orders = request('/orders', {'market': 'XMRBTC'})
   for order in orders:
     request('/cancel', {'order_id': order['id']})
   balances = request('/balances')
@@ -127,11 +131,11 @@ while True:
   buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
   sell_amount = Decimal(balances['XMR'])
   if buy_amount > 0:
-    request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
+    request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
   if sell_amount > 0:
-    request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
+    request('/sell', {'market': 'XMRBTC', 'amount': str(sell_amount), 'price': str(sell_price)})
   if buy_amount < THRESHOLD:
-    orders = request('/orders')
+    orders = request('/orders', 'XMRBTC')
     for order in orders:
       request('/cancel', {'order_id': order['id']})
     # need to get some more BTC on this exchange
@@ -140,16 +144,16 @@ while True:
     # x = (sell_amount - buy_amount) / 2
     amount_to_move_to_kraken = round_xmr((sell_amount - buy_amount) / 2)
     print("amount to move to kraken is", amount_to_move_to_kraken, "XMR")
-    print(request('/withdraw', {'currency': 'XMR', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_xmr_deposit_address()}))
+    print(request('/withdraw', {'asset': 'XMR', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_xmr_deposit_address()}))
     balances = request('/balances')
     buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
     sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
     buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
     sell_amount = Decimal(balances['XMR'])
     if buy_amount > 0:
-      request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
+      request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
     if sell_amount > 0:
-      request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
+      request('/sell', {'market': 'XMRBTC', 'amount': str(sell_amount), 'price': str(sell_price)})
     while get_kraken_xmr_balance() < amount_to_move_to_kraken * Decimal('0.95'):
       sleep(60)
     sell_on_kraken(amount_to_move_to_kraken)
@@ -160,7 +164,7 @@ while True:
       sleep(60)
     print("And the funds have arrived locally")
   elif sell_amount < THRESHOLD:
-    orders = request('/orders')
+    orders = request('/orders', {'market': 'XMRBTC'})
     for order in orders:
       request('/cancel', {'order_id': order['id']})
     # need to get some more XMR on this exchange
@@ -170,16 +174,16 @@ while True:
     # x = (buy_amount - sell_amount) * mid_market_rate / 2
     amount_to_move_to_kraken = round_btc((buy_amount - sell_amount) * mid_market_rate / (Decimal(2)))
     print("amount to move to kraken is", amount_to_move_to_kraken, "BTC")
-    print(request('/withdraw', {'currency': 'BTC', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_btc_deposit_address()}))
+    print(request('/withdraw', {'asset': 'BTC', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_btc_deposit_address()}))
     balances = request('/balances')
     buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
     sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
     buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
     sell_amount = Decimal(balances['XMR'])
     if buy_amount > 0:
-      request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
+      request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
     if sell_amount > 0:
-      request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
+      request('/sell', {'market': 'XMRBTC', 'amount': str(sell_amount), 'price': str(sell_price)})
     while get_kraken_btc_balance() < amount_to_move_to_kraken * Decimal('0.95'):
       sleep(60)
     amount_to_buy_on_kraken = amount_to_move_to_kraken / mid_market_rate * Decimal('0.98')
