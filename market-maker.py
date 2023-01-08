@@ -39,7 +39,6 @@ def round_btc(amount):
 def request(url, params={}):
   params['api_key'] = api_key
   response = requests.get(HOST + url, params)
-  sleep(0.5)
   return response.json()
 
 def round_to_18_decimal_places(amount):
@@ -190,4 +189,4 @@ while True:
       sleep(60)
     print("and the funds have arrived locally")
   else:
-    sleep(60*20)
+    sleep(60*5)
