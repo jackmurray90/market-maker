@@ -129,7 +129,7 @@ while True:
   if sell_amount > 0:
     request('/sell', {'market': 'XMRBTC', 'amount': str(sell_amount), 'price': str(sell_price)})
   if buy_amount < THRESHOLD:
-    orders = request('/orders', 'XMRBTC')
+    orders = request('/orders', {'market': 'XMRBTC'})
     for order in orders:
       request('/cancel', {'order_id': order['id']})
     # need to get some more BTC on this exchange
