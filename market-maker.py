@@ -141,6 +141,15 @@ while True:
     amount_to_move_to_kraken = round_xmr((sell_amount - buy_amount) / 2)
     print("amount to move to kraken is", amount_to_move_to_kraken, "XMR")
     print(request('/withdraw', {'currency': 'XMR', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_xmr_deposit_address()}))
+    balances = request('/balances')
+    buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
+    sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
+    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
+    sell_amount = Decimal(balances['XMR'])
+    if buy_amount > 0:
+      request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
+    if sell_amount > 0:
+      request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
     while get_kraken_xmr_balance() < amount_to_move_to_kraken * Decimal('0.95'):
       sleep(60)
     sell_on_kraken(amount_to_move_to_kraken)
@@ -162,6 +171,15 @@ while True:
     amount_to_move_to_kraken = round_btc((buy_amount - sell_amount) * mid_market_rate / (Decimal(2)))
     print("amount to move to kraken is", amount_to_move_to_kraken, "BTC")
     print(request('/withdraw', {'currency': 'BTC', 'amount': str(amount_to_move_to_kraken), 'address': get_kraken_btc_deposit_address()}))
+    balances = request('/balances')
+    buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
+    sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
+    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
+    sell_amount = Decimal(balances['XMR'])
+    if buy_amount > 0:
+      request('/buy', {'amount': str(buy_amount), 'price': str(buy_price)})
+    if sell_amount > 0:
+      request('/sell', {'amount': str(sell_amount), 'price': str(sell_price)})
     while get_kraken_btc_balance() < amount_to_move_to_kraken * Decimal('0.95'):
       sleep(60)
     amount_to_buy_on_kraken = amount_to_move_to_kraken / mid_market_rate * Decimal('0.98')
