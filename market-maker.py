@@ -107,10 +107,14 @@ def withdraw_btc_from_kraken(amount):
     'amount': format_decimal(amount, 8),
   }))
 
-print("Deposit some XMR and BTC to the following addresses and then press enter:")
+print("Deposit some XMR and BTC to the following addresses")
 print(request('/deposit', {'asset': 'BTC'})['address'])
 print(request('/deposit', {'asset': 'XMR'})['address'])
-input()
+
+while True:
+  print("balances are",request('/balances'))
+  if input("Is this correct? ")[:1] == 'y':
+    break
 
 while True:
   mid_market_rate = get_mid_market_rate()
@@ -119,9 +123,6 @@ while True:
   for order in orders:
     request('/cancel', {'order_id': order['id']})
   balances = request('/balances')
-  if balances['XMR'] == 0 and balances['BTC'] == 0:
-    sleep(10)
-    continue
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
   sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
   buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
