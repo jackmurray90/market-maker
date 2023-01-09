@@ -113,13 +113,15 @@ print(request('/deposit', {'asset': 'XMR'})['address'])
 input()
 
 while True:
-  balances = request('/balances')
   mid_market_rate = get_mid_market_rate()
   print("Kraken mid market rate is", mid_market_rate, "updating orders")
   orders = request('/orders', {'market': 'XMRBTC'})
   for order in orders:
     request('/cancel', {'order_id': order['id']})
   balances = request('/balances')
+  if balances['XMR'] == 0 and balances['BTC'] == 0:
+    sleep(10)
+    continue
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
   sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
   buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
