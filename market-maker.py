@@ -8,6 +8,7 @@ from kraken import kraken_request
 HOST = 'https://fryx.finance'
 
 THRESHOLD = Decimal('3.22')
+FEE = Decimal('0.002')
 
 if not isfile('.apikey'):
   api_key = requests.get(HOST + '/new_user').json()['api_key']
@@ -39,6 +40,7 @@ def round_btc(amount):
 def request(url, params={}):
   params['api_key'] = api_key
   response = requests.get(HOST + url, params)
+  print(response.text)
   return response.json()
 
 def round_to_18_decimal_places(amount):
@@ -125,7 +127,7 @@ while True:
   balances = request('/balances')
   buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
   sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
-  buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
+  buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / (buy_price*(1+FEE)))
   sell_amount = Decimal(balances['XMR'])
   if buy_amount > 0:
     request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
@@ -148,7 +150,7 @@ while True:
     mid_market_rate = get_mid_market_rate()
     buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
     sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
-    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
+    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / (buy_price*(1+FEE)))
     sell_amount = Decimal(balances['XMR'])
     if buy_amount > 0:
       request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
@@ -179,7 +181,7 @@ while True:
     balances = request('/balances')
     buy_price = round_to_18_decimal_places(mid_market_rate * Decimal('0.99'))
     sell_price = round_up_to_18_decimal_places(mid_market_rate * Decimal('1.01'))
-    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / buy_price)
+    buy_amount = round_to_18_decimal_places(Decimal(balances['BTC']) / (buy_price*(1+FEE)))
     sell_amount = Decimal(balances['XMR'])
     if buy_amount > 0:
       request('/buy', {'market': 'XMRBTC', 'amount': str(buy_amount), 'price': str(buy_price)})
@@ -197,4 +199,4 @@ while True:
       sleep(60)
     print("and the funds have arrived locally")
   else:
-    sleep(60*5)
+    sleep(60*30)
